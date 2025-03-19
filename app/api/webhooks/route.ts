@@ -28,13 +28,21 @@ export async function POST(req: Request) {
   let event: Stripe.Event;
 
   try {
-    if (!sig || !webhookSecret)
-      return new Response('Webhook secret not found.', { status: 400 });
+    if (!sig) {
+      console.log('❌ Missing stripe-signature header');
+      return new Response('Missing stripe-signature header', { status: 401 });
+    }
+    
+    if (!webhookSecret) {
+      console.log('❌ Server missing STRIPE_WEBHOOK_SECRET environment variable');
+      return new Response('Webhook secret not configured.', { status: 500 });
+    }
+    
     event = stripe.webhooks.constructEvent(body, sig, webhookSecret);
     console.log(`🔔  Webhook received: ${event.type}`);
   } catch (err: any) {
-    console.log(`❌ Error message: ${err.message}`);
-    return new Response(`Webhook Error: ${err.message}`, { status: 400 });
+    console.log(`❌ Webhook signature verification failed: ${err.message}`);
+    return new Response(`Webhook Error: ${err.message}`, { status: 401 });
   }
 
   if (relevantEvents.has(event.type)) {
