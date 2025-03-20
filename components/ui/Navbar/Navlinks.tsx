@@ -6,7 +6,7 @@ import { handleRequest } from '@/utils/auth-helpers/client';
 import Logo from '@/components/icons/Logo';
 import { usePathname, useRouter } from 'next/navigation';
 import { getRedirectMethod } from '@/utils/auth-helpers/settings';
-
+import LanguageSwitcher from '../LangurageSwitcher';
 interface NavlinksProps {
   user?: any;
 }
@@ -54,6 +54,10 @@ export default function Navlinks({ user }: NavlinksProps) {
           </Link>
         )}
       </div>
+      <div className="flex justify-end space-x-8">
+      <LanguageSwitcher />
+      </div>
+      
     </div>
   );
 }

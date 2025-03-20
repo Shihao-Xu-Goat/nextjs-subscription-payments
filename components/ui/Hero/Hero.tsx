@@ -2,15 +2,17 @@
 
 import Button from '@/components/ui/Button';
 import Image from 'next/image';
+import { useLocale } from '@/lib/i18n/client';
 
 export default function Hero() {
+  const { t } = useLocale();
   return (
     <section className="bg-white">
       <div className="max-w-6xl px-4 py-8 mx-auto sm:py-16 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
           <div>
             <h1 className="text-4xl font-extrabold text-gray-900 sm:text-5xl">
-              Image to LaTeX
+              {t('title')}
             </h1>
             <p className="mt-4 text-xl text-gray-600">
               Handily convert images of math, text, and tables to LaTeX with Mathpix Snip.
