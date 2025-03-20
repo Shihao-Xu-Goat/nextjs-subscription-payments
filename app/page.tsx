@@ -1,4 +1,6 @@
-import Pricing from '@/components/ui/Pricing/Pricing';
+import Hero from '@/components/ui/Hero';
+import Features from '@/components/ui/Features';
+import Testimonials from '@/components/ui/Testimonials';
 import { createClient } from '@/utils/supabase/server';
 import {
   getProducts,
@@ -6,7 +8,7 @@ import {
   getUser
 } from '@/utils/supabase/queries';
 
-export default async function PricingPage() {
+export default async function HomePage() {
   const supabase = createClient();
   const [user, products, subscription] = await Promise.all([
     getUser(supabase),
@@ -15,10 +17,10 @@ export default async function PricingPage() {
   ]);
 
   return (
-    <Pricing
-      user={user}
-      products={products ?? []}
-      subscription={subscription}
-    />
+    <>
+      <Hero />
+      <Features />
+      <Testimonials />
+    </>
   );
 }
