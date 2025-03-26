@@ -9,7 +9,7 @@ export async function getServerTranslations(locale: Locale, namespaces: string[]
 
   for (const namespace of namespaces) {
     try {
-      const filePath = path.join('static', 'locales', locale, `${namespace}.json`);
+      const filePath = path.join(process.cwd(), '.vercel/output/static/locales', locale, namespace)
       console.log('Reading translation file:', filePath);
       
       const content = await fs.readFile(filePath, 'utf-8');
