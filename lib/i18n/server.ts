@@ -2,10 +2,34 @@ import fs from 'fs/promises';
 import path from 'path';
 import { Locale } from '@/lib/i18n/types/i18n';
 
+// Function to recursively print directory structure
+async function printDirectoryStructure(dir: string, indent: string = '') {
+  try {
+    const items = await fs.readdir(dir, { withFileTypes: true });
+    
+    for (const item of items) {
+      const itemPath = path.join(dir, item.name);
+      console.log(`${indent}${item.isDirectory() ? '📁' : '📄'} ${item.name}`);
+      
+      if (item.isDirectory()) {
+        // Recursively print subdirectories
+        await printDirectoryStructure(itemPath, `${indent}  `);
+      }
+    }
+  } catch (error) {
+    console.error(`Error reading directory ${dir}:`, error);
+  }
+}
+
 export async function getServerTranslations(locale: Locale, namespaces: string[]) {
   const translations: Record<string, any> = {};
 
   console.log('Loading server translations for:', { locale, namespaces });
+  
+  // Print the entire project directory structure
+  console.log('\n📁 PROJECT DIRECTORY STRUCTURE:');
+  await printDirectoryStructure(process.cwd());
+  console.log('\n');
 
   for (const namespace of namespaces) {
     try {
