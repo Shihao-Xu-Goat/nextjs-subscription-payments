@@ -3,17 +3,32 @@ import path from 'path';
 import { Locale } from '@/lib/i18n/types/i18n';
 
 // Function to recursively print directory structure
-async function printDirectoryStructure(dir: string, indent: string = '') {
+async function printDirectoryStructure(dir: string, indent: string = '', prefix: string = '') {
   try {
     const items = await fs.readdir(dir, { withFileTypes: true });
+    const sortedItems = [...items].sort((a, b) => {
+      // Directories first, then files
+      if (a.isDirectory() && !b.isDirectory()) return -1;
+      if (!a.isDirectory() && b.isDirectory()) return 1;
+      return a.name.localeCompare(b.name);
+    });
     
-    for (const item of items) {
+    for (let i = 0; i < sortedItems.length; i++) {
+      const item = sortedItems[i];
+      const isLast = i === sortedItems.length - 1;
       const itemPath = path.join(dir, item.name);
-      console.log(`${indent}${item.isDirectory() ? '📁' : '📄'} ${item.name}`);
+      
+      // Create the current line prefix
+      const linePrefix = isLast ? '└── ' : '├── ';
+      // Create the next level indent prefix
+      const nextPrefix = isLast ? '    ' : '│   ';
+      
+      // Print current item with appropriate prefix
+      console.log(`${indent}${linePrefix}${item.isDirectory() ? '📁' : '📄'} ${item.name}`);
       
       if (item.isDirectory()) {
-        // Recursively print subdirectories
-        await printDirectoryStructure(itemPath, `${indent}  `);
+        // Recursively print subdirectories with updated indent
+        await printDirectoryStructure(itemPath, indent + nextPrefix);
       }
     }
   } catch (error) {
