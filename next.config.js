@@ -6,12 +6,15 @@ const nextConfig = {
   },
   // i18n configuration removed as it's not compatible with App Router
   // Internationalization is now handled through middleware.ts and app/[locale] directory
-  output: 'standalone',
+  // Disabled standalone output due to Windows symlink permission issues
+  // output: 'standalone',
   // Ensure public directory files are included in the build
   outputFileTracing: true,
   // Explicitly include public directory and its subdirectories (including locales)
-  outputFileTracingIncludes: {
-    '**': ['./public/**/*']
+  experimental: {
+    outputFileTracingIncludes: {
+      '**': ['./public/**/*']
+    }
   }
 };
 
