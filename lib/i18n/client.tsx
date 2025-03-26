@@ -49,7 +49,7 @@ export function LocaleProvider({
             console.log(`Loading namespace: ${namespace}`);
             const response = await fetch(`/locales/${locale}/${namespace}.json`);
             if (!response.ok) {
-              console.error(`Failed to load namespace ${namespace}: ${response.statusText}`);
+              console.error(`Client failed to load namespace ${namespace}: ${response.statusText}`);
               return {};
             }
             const data = await response.json();

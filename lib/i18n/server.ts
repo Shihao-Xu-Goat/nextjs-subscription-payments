@@ -19,7 +19,7 @@ export async function getServerTranslations(locale: Locale, namespaces: string[]
       // Log the full structure of loaded translations
       console.log(`Full ${namespace} translations structure:`, JSON.stringify(translations[namespace], null, 2));
     } catch (error) {
-      console.error(`Failed to load translations for ${locale}/${namespace}:`, error);
+      console.error(`Server failed to load translations for ${locale}/${namespace}:`, error);
       translations[namespace] = {};
     }
   }
