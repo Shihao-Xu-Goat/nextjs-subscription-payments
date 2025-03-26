@@ -9,10 +9,43 @@ export async function getServerTranslations(locale: Locale, namespaces: string[]
 
   for (const namespace of namespaces) {
     try {
-      const filePath = path.join(process.cwd(), '.vercel/output/static/locales', locale, namespace)
-      console.log('Reading translation file:', filePath);
+      // Try multiple possible paths for translation files
+      const possiblePaths = [
+        // Path for local development
+        path.join(process.cwd(), 'public', 'locales', locale, `${namespace}.json`),
+        // Path for Vercel production
+        path.join(process.cwd(), '.vercel', 'output', 'static', 'locales', locale, `${namespace}.json`),
+        path.join(process.cwd(), 'output', 'static', 'locales', locale, `${namespace}.json`),
+        path.join(process.cwd(),  'locales', locale, `${namespace}.json`),
+        // Path as previously used
+        path.join(process.cwd(), '.vercel/output/static/locales', locale, namespace)
+      ];
       
-      const content = await fs.readFile(filePath, 'utf-8');
+      let content = null;
+      let usedPath = null;
+      
+      // Try each path until we find one that works
+      for (const attemptPath of possiblePaths) {
+        try {
+          console.log('Attempting to read translation file from:', attemptPath);
+          content = await fs.readFile(attemptPath, 'utf-8');
+          usedPath = attemptPath;
+          console.log('Successfully read translation file from:', usedPath);
+          break;
+        } catch (pathError: unknown) {
+          if (pathError instanceof Error) {
+            console.log(`Could not read from ${attemptPath}:`, (pathError as { code?: string }).code);
+          } else {
+            console.log(`Could not read from ${attemptPath}: Unknown error`);
+          }
+          // Continue to the next path
+        }
+      }
+      
+      if (!content) {
+        throw new Error(`Could not find translation file for ${locale}/${namespace} in any of the expected locations`);
+      }
+      
       const parsedContent = JSON.parse(content);
       translations[namespace] = parsedContent;
       
