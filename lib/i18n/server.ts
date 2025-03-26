@@ -9,15 +9,44 @@ export async function getServerTranslations(locale: Locale, namespaces: string[]
 
   for (const namespace of namespaces) {
     try {
-      const filePath = path.join(process.cwd(), 'public', 'locales', locale, `${namespace}.json`);
-      console.log('Reading translation file:', filePath);
+      // First try the standard path (for local development)
+      let filePath = path.join(process.cwd(), 'public', 'locales', locale, `${namespace}.json`);
+      let fileExists = false;
       
-      const content = await fs.readFile(filePath, 'utf-8');
-      const parsedContent = JSON.parse(content);
-      translations[namespace] = parsedContent;
+      try {
+        // Check if file exists at the standard path
+        await fs.access(filePath);
+        fileExists = true;
+      } catch {
+        // If not found, try the Vercel deployment path
+        filePath = path.join('static', 'locales', locale, `${namespace}.json`);
+        try {
+          await fs.access(filePath);
+          fileExists = true;
+        } catch {
+          // If still not found, try direct static path (another possible Vercel structure)
+          filePath = path.join(process.cwd(), 'locales', locale, `${namespace}.json`);
+          try {
+            await fs.access(filePath);
+            fileExists = true;
+          } catch {
+            // File not found in any expected location
+          }
+        }
+      }
       
-      // Log the full structure of loaded translations
-      console.log(`Full ${namespace} translations structure:`, JSON.stringify(translations[namespace], null, 2));
+      console.log('Reading translation file:', filePath, 'Exists:', fileExists);
+      
+      if (fileExists) {
+        const content = await fs.readFile(filePath, 'utf-8');
+        const parsedContent = JSON.parse(content);
+        translations[namespace] = parsedContent;
+        
+        // Log the full structure of loaded translations
+        console.log(`Full ${namespace} translations structure:`, JSON.stringify(translations[namespace], null, 2));
+      } else {
+        throw new Error(`Translation file not found at any expected location`);
+      }
     } catch (error) {
       console.error(`Failed to load translations for ${locale}/${namespace}:`, error);
       translations[namespace] = {};
